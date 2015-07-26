@@ -2,6 +2,7 @@ from expecter import expect
 
 from neato.swamp.models import Neuron
 from neato.swamp.models import SensorNeuron
+from neato.swamp.models import BiasNeuron
 from neato.swamp.models import Synapse
 from neato.swamp.models import Neuron
 from neato.swamp.models import sigmoid
@@ -37,7 +38,14 @@ class WhenSynapsesTransmitSignals(object):
 
 class WhenWorkingWithSensorNeurons(object):
 
-    def should_pass_activation_thru_input_function(self):
-        function = lambda: 10
+    def should_pass_value_of_function_as_activation(self):
+        function = lambda: 10.0
         neuron = SensorNeuron(function)
-        expect(neuron.activation) == 10
+        expect(neuron.activation) == 10.0
+
+
+class WhenWorkingWithBiasNeurons(object):
+
+    def should_pass_constant_value_as_activation(self):
+        neuron = BiasNeuron()
+        expect(neuron.activation) == 1.0

@@ -38,3 +38,7 @@ class SensorNeuron(object):
     @property
     def activation(self):
         return self.value_function()
+
+
+class BiasNeuron(object):
+    activation = 1.0
