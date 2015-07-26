@@ -28,3 +28,13 @@ class Synapse(object):
     @property
     def signal(self):
         return self.axon.activation * self.weight
+
+
+class SensorNeuron(object):
+
+    def __init__(self, value_function):
+        self.value_function = value_function
+
+    @property
+    def activation(self):
+        return self.value_function()

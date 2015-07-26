@@ -1,6 +1,10 @@
 from expecter import expect
 
-from neato.swamp.models import Neuron, Synapse, sigmoid
+from neato.swamp.models import Neuron
+from neato.swamp.models import SensorNeuron
+from neato.swamp.models import Synapse
+from neato.swamp.models import Neuron
+from neato.swamp.models import sigmoid
 
 
 class StubSynapse(object):
@@ -29,3 +33,11 @@ class WhenSynapsesTransmitSignals(object):
     def should_adjust_by_weight(self):
         synapse = Synapse(StubNeuron(10), 0.5)
         expect(synapse.signal) == 5.0
+
+
+class WhenWorkingWithSensorNeurons(object):
+
+    def should_pass_activation_thru_input_function(self):
+        function = lambda: 10
+        neuron = SensorNeuron(function)
+        expect(neuron.activation) == 10
