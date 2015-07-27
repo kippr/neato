@@ -1,5 +1,3 @@
-#from django.db import models
-
 import math
 
 
@@ -44,6 +42,7 @@ class Neuron(object):
 
 class SensorNeuron(object):
     fire = always_relaxed
+    incoming_synapses = ()
 
     def __init__(self, value_function):
         self.value_function = value_function
@@ -55,13 +54,15 @@ class SensorNeuron(object):
 
 class BiasNeuron(object):
     fire = always_relaxed
+    incoming_synapses = ()
     activation = 1.0
 
 
 class Network(object):
 
-    def __init__(self, neurons):
+    def __init__(self, neurons, result_function=lambda *args: args):
         self.neurons = neurons
+        self.result_function = result_function
 
     def splice(self, axon, dendrite, weight):
         synapse = Synapse(axon, weight)
@@ -69,5 +70,9 @@ class Network(object):
 
     def activate(self):
         excited_neurons = list(self.neurons)
+        non_terminals = set(synapse.axon for neuron in self.neurons for synapse in neuron.incoming_synapses)
+        outputs = [neuron for neuron in self.neurons if neuron not in non_terminals]
         while excited_neurons:
             excited_neurons = [neuron for neuron in excited_neurons if RELAXED != neuron.fire()]
+        output_activations = tuple(o.activation for o in outputs)
+        return self.result_function(*output_activations)
