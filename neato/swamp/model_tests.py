@@ -22,6 +22,19 @@ class StubNeuron(object):
         self.activation = activation
 
 
+class WhenWantingToSeeSigmoidValues(object):
+
+    def should_fail_this_test(self):
+        def print_sigmoid(value):
+            print '{}: {}'.format(value, sigmoid(value))
+        print_sigmoid(-1)
+        print_sigmoid(-0.5)
+        print_sigmoid(0)
+        print_sigmoid(0.5)
+        print_sigmoid(1)
+        assert True
+
+
 class WhenCalculatingActivation(object):
 
     def should_be_sigmoid_of_sum_of_incoming_values(self):

@@ -9,6 +9,7 @@ RELAXED_THRESHOLD = 0.0005
 RELAXED = 'Relaxed'
 
 def always_relaxed(self):
+    print '{} Activation: {}'.format(self.label, self.activation)
     return RELAXED
 
 
@@ -23,9 +24,22 @@ class Synapse(object):
         return self.axon.activation * self.weight
 
 
-class Neuron(object):
+class Labeled(object):
+    _label = None
 
-    def __init__(self):
+    def __init__(self, label=None):
+        if label:
+            self._label = label
+
+    @property
+    def label(self):
+        return self._label if self._label else self.__class__.__name__
+
+
+class Neuron(Labeled):
+
+    def __init__(self, label=None):
+        super(Neuron, self).__init__(label)
         self.incoming_synapses = []
         self.activation = 0.0
 
@@ -33,6 +47,8 @@ class Neuron(object):
         summed_values = sum(synapse.signal for synapse in self.incoming_synapses)
         activation = sigmoid(summed_values)
         relaxed = RELAXED_THRESHOLD > abs(self.activation - activation)
+        if relaxed:
+            print '{} Activation: {}; Sum: {}'.format(self.label, activation, summed_values)
         self.activation = activation
         return RELAXED if relaxed else None
 
@@ -40,11 +56,12 @@ class Neuron(object):
         self.incoming_synapses.append(synapse)
 
 
-class SensorNeuron(object):
+class SensorNeuron(Labeled):
     fire = always_relaxed
     incoming_synapses = ()
 
-    def __init__(self, value_function):
+    def __init__(self, value_function, label=None):
+        super(SensorNeuron, self).__init__(label)
         self.value_function = value_function
 
     @property
@@ -52,7 +69,7 @@ class SensorNeuron(object):
         return self.value_function()
 
 
-class BiasNeuron(object):
+class BiasNeuron(Labeled):
     fire = always_relaxed
     incoming_synapses = ()
     activation = 1.0
