@@ -7,12 +7,11 @@ def sigmoid(t):
     return 1 / (1 + math.exp(-4.924273 * t))
 
 
-class Relaxed(Exception):
-    THRESHOLD = 0.0005
+RELAXED_THRESHOLD = 0.0005
+RELAXED = 'Relaxed'
 
-    @classmethod
-    def always(cls):
-        raise cls
+def always_relaxed(self):
+    return RELAXED
 
 
 class Synapse(object):
@@ -35,18 +34,16 @@ class Neuron(object):
     def fire(self):
         summed_values = sum(synapse.signal for synapse in self.incoming_synapses)
         activation = sigmoid(summed_values)
-        if abs(self.activation - activation) < Relaxed.THRESHOLD:
-            self.activation = activation
-            raise Relaxed
+        relaxed = RELAXED_THRESHOLD > abs(self.activation - activation)
         self.activation = activation
-
+        return RELAXED if relaxed else None
 
     def add_incoming(self, synapse):
         self.incoming_synapses.append(synapse)
 
 
 class SensorNeuron(object):
-    fire = Relaxed.always
+    fire = always_relaxed
 
     def __init__(self, value_function):
         self.value_function = value_function
@@ -57,12 +54,20 @@ class SensorNeuron(object):
 
 
 class BiasNeuron(object):
-    fire = Relaxed.always
+    fire = always_relaxed
     activation = 1.0
 
 
 class Network(object):
 
+    def __init__(self, neurons):
+        self.neurons = neurons
+
     def splice(self, axon, dendrite, weight):
         synapse = Synapse(axon, weight)
         dendrite.add_incoming(synapse)
+
+    def activate(self):
+        excited_neurons = list(self.neurons)
+        while excited_neurons:
+            excited_neurons = [neuron for neuron in excited_neurons if RELAXED != neuron.fire()]

@@ -7,6 +7,7 @@ from neato.swamp.models import BiasNeuron
 from neato.swamp.models import Synapse
 from neato.swamp.models import Neuron
 from neato.swamp.models import sigmoid
+from neato.swamp.models import RELAXED
 
 
 class StubSynapse(object):
@@ -60,6 +61,16 @@ class WhenCreatingNetwork(object):
         neuron1 = BiasNeuron()
         neuron2 = Neuron()
         weight = 0.5
-        Network().splice(neuron1, neuron2, weight)
+        Network(()).splice(neuron1, neuron2, weight)
         neuron2.fire()
         expect(neuron2.activation) == sigmoid(0.5 * neuron1.activation)
+
+
+class WhenActivatingNetwork(object):
+
+    def should_fire_until_all_nodes_relaxed(self):
+        sensor = SensorNeuron(lambda: 10)
+        output = Neuron()
+        net = Network((sensor, output))
+        net.activate()
+        expect((sensor.fire(), output.fire())) == (RELAXED, RELAXED)
