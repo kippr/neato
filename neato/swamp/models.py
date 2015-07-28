@@ -8,6 +8,7 @@ def sigmoid(t):
 RELAXED_THRESHOLD = 0.0005
 RELAXED = 'Relaxed'
 
+
 def always_relaxed(self):
     print '{} Activation: {}'.format(self.label, self.activation)
     return RELAXED
