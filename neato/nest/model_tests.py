@@ -1,5 +1,10 @@
 from expecter import expect
 from neato.nest.models import Population
+from neato.swamp.models import Clocked
+
+
+Clocked.clock.start()
+
 
 def spark(input_functions, number_of_outputs):
         population = Population(input_functions, number_of_outputs)

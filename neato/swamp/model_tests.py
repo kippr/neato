@@ -21,6 +21,8 @@ class StubNeuron(object):
     def __init__(self, activation):
         self.activation = activation
 
+# tests all assume a running clock or else manage it themselves
+Synapse.clock.start()
 
 class WhenWantingToSeeSigmoidValues(object):
 
@@ -47,6 +49,7 @@ class WhenCalculatingActivation(object):
 
 
 class WhenSynapsesTransmitSignals(object):
+
 
     def should_adjust_by_weight(self):
         synapse = Synapse(StubNeuron(10), 0.5)
@@ -101,3 +104,15 @@ class WhenTrackingInnovationNumbers(object):
         neuron = Neuron()
         expect(neuron.id) == 10
         expect(Synapse(neuron, 10).id) == 11
+
+    def should_be_able_to_manually_set_ids_only_while_clock_not_started(self):
+        Synapse.clock.reset()
+        neuron = Neuron(id=3)
+        expect(neuron.id) == 3
+        expect(Synapse(neuron, 10, id=7).id) == 7
+        Synapse.clock.start()
+        expect(Neuron().id) == 8
+        with expect.raises(AssertionError):
+            Neuron(id=3)
+
+

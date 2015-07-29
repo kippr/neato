@@ -1,8 +1,10 @@
 from expecter import expect
 
 from neato.lab.models import hand_crafted_xor
-from neato.swamp.models import sigmoid
+from neato.swamp.models import sigmoid, Clocked
 
+
+Clocked.clock.start()
 
 def simple_xor(s1, s2):
     nand = not(s1 and s2)

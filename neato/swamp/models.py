@@ -19,11 +19,26 @@ class Clocked(object):
 
     class SharedClock(object):
 
-        def __init__(self, next_innovation_number=1):
-            self._next_innovation_number = next_innovation_number
+        def __init__(self):
+            self.reset()
+
+        def start(self):
+            self._next_innovation_number = self._highest_seen + 1
+            self._highest_seen = None
+
+        def manual(self, id):
+            assert self._next_innovation_number is None, "Clock has already started, can't set innovation number"
+            if id > self._highest_seen:
+                self._highest_seen = id
+            return id
+
+        def reset(self):
+            self._next_innovation_number = None
+            self._highest_seen = 0
 
         @property
         def next_innovation_number(self):
+            assert self._next_innovation_number, "Clock hasn't been started yet"
             num = self._next_innovation_number
             self._next_innovation_number += 1
             return num
@@ -31,15 +46,18 @@ class Clocked(object):
 
     clock = SharedClock()
 
-    def __init__(self):
+    def __init__(self, id=None):
         super(Clocked, self).__init__()
-        self.id = self.clock.next_innovation_number
+        if id:
+            self.id = self.clock.manual(id)
+        else:
+            self.id = self.clock.next_innovation_number
 
 
 class Synapse(Clocked):
 
-    def __init__(self, axon, weight):
-        super(Synapse, self).__init__()
+    def __init__(self, axon, weight, id=None):
+        super(Synapse, self).__init__(id=id)
         self.axon = axon
         self.weight = weight
 
@@ -51,8 +69,8 @@ class Synapse(Clocked):
 class Labeled(object):
     _label = None
 
-    def __init__(self, label=None):
-        super(Labeled, self).__init__()
+    def __init__(self, label=None, id=None):
+        super(Labeled, self).__init__(id=id)
         if label:
             self._label = label
 
@@ -63,8 +81,8 @@ class Labeled(object):
 
 class Neuron(Labeled, Clocked):
 
-    def __init__(self, label=None):
-        super(Neuron, self).__init__(label=label)
+    def __init__(self, label=None, id=None):
+        super(Neuron, self).__init__(label=label, id=id)
         self.incoming_synapses = []
         self.activation = 0.0
 
@@ -85,8 +103,8 @@ class SensorNeuron(Labeled, Clocked):
     fire = always_relaxed
     incoming_synapses = ()
 
-    def __init__(self, value_function, label=None):
-        super(SensorNeuron, self).__init__(label=label)
+    def __init__(self, value_function, label=None, id=None):
+        super(SensorNeuron, self).__init__(label=label, id=None)
         self.value_function = value_function
 
     @property

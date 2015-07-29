@@ -1,6 +1,10 @@
 from expecter import expect
 
 from neato.bieb.models import Bieb
+from neato.swamp.models import Clocked
+
+
+Clocked.clock.start()
 
 
 class WhenResurrecting(object):
