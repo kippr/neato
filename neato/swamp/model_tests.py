@@ -87,3 +87,17 @@ class WhenActivatingNetwork(object):
         net = Network((sensor, output))
         net.activate()
         expect((sensor.fire(), output.fire())) == (RELAXED, RELAXED)
+
+
+class WhenTrackingInnovationNumbers(object):
+
+    def should_count_neurons(self):
+        Neuron.clock._next_innovation_number = 11
+        expect(Neuron().id) == 11
+        expect(Neuron().id) == 12
+
+    def should_count_synapse_from_same_clock(self):
+        Synapse.clock._next_innovation_number = 10
+        neuron = Neuron()
+        expect(neuron.id) == 10
+        expect(Synapse(neuron, 10).id) == 11

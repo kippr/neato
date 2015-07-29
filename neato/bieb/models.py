@@ -14,7 +14,6 @@ class Bieb(object):
         self.input_functions = input_function_mappings
 
     def network_from_json(self, genome):
-        #input_labels = [n['label'] for n in genome['neurons'] if n['type'] == 'Sensor']
         neurons = [self._neuron(n) for n in genome['neurons']]
         lookup = {n.label: n for n in neurons}
         net = nn.Network(neurons)

@@ -1,6 +1,7 @@
 import math
 
 
+
 def sigmoid(t):
     return 1 / (1 + math.exp(-4.924273 * t))
 
@@ -14,11 +15,33 @@ def always_relaxed(self):
     return RELAXED
 
 
-class Synapse(object):
+class Clocked(object):
+
+    class SharedClock(object):
+
+        def __init__(self, next_innovation_number=1):
+            self._next_innovation_number = next_innovation_number
+
+        @property
+        def next_innovation_number(self):
+            num = self._next_innovation_number
+            self._next_innovation_number += 1
+            return num
+
+
+    clock = SharedClock()
+
+    def __init__(self):
+        super(Clocked, self).__init__()
+        self.id = self.clock.next_innovation_number
+
+
+class Synapse(Clocked):
 
     def __init__(self, axon, weight):
-        self.weight = weight
+        super(Synapse, self).__init__()
         self.axon = axon
+        self.weight = weight
 
     @property
     def signal(self):
@@ -29,6 +52,7 @@ class Labeled(object):
     _label = None
 
     def __init__(self, label=None):
+        super(Labeled, self).__init__()
         if label:
             self._label = label
 
@@ -37,10 +61,10 @@ class Labeled(object):
         return self._label if self._label else self.__class__.__name__
 
 
-class Neuron(Labeled):
+class Neuron(Labeled, Clocked):
 
     def __init__(self, label=None):
-        super(Neuron, self).__init__(label)
+        super(Neuron, self).__init__(label=label)
         self.incoming_synapses = []
         self.activation = 0.0
 
@@ -57,12 +81,12 @@ class Neuron(Labeled):
         self.incoming_synapses.append(synapse)
 
 
-class SensorNeuron(Labeled):
+class SensorNeuron(Labeled, Clocked):
     fire = always_relaxed
     incoming_synapses = ()
 
     def __init__(self, value_function, label=None):
-        super(SensorNeuron, self).__init__(label)
+        super(SensorNeuron, self).__init__(label=label)
         self.value_function = value_function
 
     @property
@@ -70,7 +94,7 @@ class SensorNeuron(Labeled):
         return self.value_function()
 
 
-class BiasNeuron(Labeled):
+class BiasNeuron(Labeled, Clocked):
     fire = always_relaxed
     incoming_synapses = ()
     activation = 1.0
