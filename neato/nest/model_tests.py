@@ -28,4 +28,3 @@ class WhenStartingAfresh(object):
         adam = spark([lambda: 1], ['out'])
         output = next(n for n in adam.neurons if n.incoming_synapses)
         expect(output.incoming_synapses[0].weight) == 1
-
